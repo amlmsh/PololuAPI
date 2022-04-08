@@ -15,30 +15,52 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char * argv[])
 {
 	try{
+	        int posAng = 0;
+		int motorID = 0;
+	        if(argc == 3){
+		  posAng = stoi(argv[2]);
+	          if(posAng>90){
+		    posAng = 90;
+		  }else if(posAng < -90){
+		    posAng = -90;
+		  }
+
+		  motorID = stoi(argv[1]);
+	          if(motorID>3){
+		    motorID = 3;
+		  }else if(motorID < 0){
+		    posAng = 0;
+		  }
+		}else{
+		  cout << "USAGE: " << argv[0] << " <motorID>[0...3] " << " <posAngDeg>[-90...90] " << endl;
+		  exit(0);
+		}
+
+	    
 		const char* portName = "/dev/ttyACM0";  // Linux
 		Pololu conn(portName, 9600);
 		// Open connection to COM port.
 		conn.openConnection();
 		conn.getErrors();
 
-		return 0;
-
 
 		// Define the servos of the robot manipulator
-		ServoMotor arm_0(0, 7500, 1500	, &conn);
-		cout << "max. pos.: " << arm_0.getMaxPosInAbs() << endl;
-		cout << "min. pos.: " << arm_0.getMinPosInAbs() << endl;
-		cout << "get current pos.: "  << arm_0.getPositionInAbs() << endl;
+		ServoMotor arm(motorID, 6000, 3000	, &conn);
+		cout << "max. pos.: " << arm.getMaxPosInAbs() << endl;
+		cout << "min. pos.: " << arm.getMinPosInAbs() << endl;
+		cout << "get current pos.: "  << arm.getPositionInAbs() << endl;
+
+
+		arm.setMinMaxDegree(-90,90);
+		arm.setPositionInDeg(posAng);
+
 
 		unsigned short pMin, pMid, pMax;
-		arm_0.showPololuValues(pMin,pMid,pMax);
+		arm.showPololuValues(pMin,pMid,pMax);
 		cout << pMin	<< " " << pMid << " " << pMax << endl;
-
-		arm_0.setMinMaxDegree(-45,45);
-		arm_0.setPositionInDeg(0);
 
 
 		conn.closeConnection();
